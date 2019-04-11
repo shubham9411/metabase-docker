@@ -5,7 +5,8 @@ source .env
 set +o allexport
 domains=$DOMAINS
 
-data_path="./nginx/certbot"
+SCRIPTS_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+data_path="$SCRIPTS_ROOT/../nginx/certbot"
 
 if [ ! -e "$data_path/conf/options-ssl-nginx.conf" ] || [ ! -e "$data_path/conf/ssl-dhparams.pem" ]; then
   echo "### Downloading recommended TLS parameters ..."
@@ -23,4 +24,9 @@ docker-compose run --rm --entrypoint "\
     -keyout '$path/privkey.pem' \
     -out '$path/fullchain.pem' \
     -subj '/CN=localhost'" certbot
+echo
+
+echo "### Creating nginx conf ..."
+nginx_path="$SCRIPTS_ROOT/../nginx"
+domain=$domains $SCRIPTS_ROOT/nginx.conf.sh > $SCRIPTS_ROOT/../nginx/nginx.conf
 echo
